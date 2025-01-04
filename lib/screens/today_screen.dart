@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
 import 'package:madcamp_w2/widget/satisfaction_button.dart';
+import 'package:madcamp_w2/widget/temperature_graph.dart';
 
 class TodayScreen extends StatefulWidget {
   const TodayScreen({Key? key}) : super(key: key);
@@ -153,7 +154,10 @@ class _TodayScreenState extends State<TodayScreen> {
               Container(
                 width: 170,
                 height: 60,
-                color: ColorChart.ootdTextGrey,
+                // color: ColorChart.ootdTextGrey,
+                child: TemperatureGraph(
+                  values: [-4, 3, 2, -1],
+                ),
               )
             ],
           ),
