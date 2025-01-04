@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
+import 'package:madcamp_w2/widget/satisfaction_button.dart';
 
 class TodayScreen extends StatefulWidget {
   const TodayScreen({Key? key}) : super(key: key);
@@ -319,9 +320,10 @@ class _TodayScreenState extends State<TodayScreen> {
           height: 19,
         ),
         Container(
-          width: MediaQuery.of(context).size.width,
-          height: 50,
-          color: ColorChart.ootdTextGrey,
+          // width: MediaQuery.of(context).size.width,
+          // height: 50,
+          // color: ColorChart.ootdTextGrey,
+          child: SatisfactionButton(),
         )
       ],
     );
