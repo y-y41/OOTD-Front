@@ -15,18 +15,18 @@ class _SatisfactionButtonState extends State<SatisfactionButton> {
   String? selectedText;
 
   final Map<String, String> emojiText = {
-    Satisfaction.veryHot: '더웠음',
-    Satisfaction.littleHot: '약간 더웠음',
-    Satisfaction.good: '만족했음',
-    Satisfaction.littleCold: '약간 추웠음',
-    Satisfaction.veryCold: '추웠음'
+    Satisfaction.veryHot: '더웠어요',
+    Satisfaction.littleHot: '약간 더웠어요',
+    Satisfaction.good: '만족했어요',
+    Satisfaction.littleCold: '약간 추웠어요',
+    Satisfaction.veryCold: '추웠어요'
   };
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      height: 50,
+      height: 60,
       // width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
           // color: ColorChart.ootdIvory,
@@ -34,7 +34,9 @@ class _SatisfactionButtonState extends State<SatisfactionButton> {
           ),
       child: Material(
         color: Colors.transparent,
-        child: isExpanded ? _buildExpanded() : _buildCollapsed(),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [isExpanded ? _buildExpanded() : _buildCollapsed()]),
       ),
     );
   }

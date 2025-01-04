@@ -34,7 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Container(
         color: ColorChart.ootdIvory,
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.symmetric(
+          horizontal: 20,
+        ),
         child: pages[index],
       ),
       bottomNavigationBar: BottomNavigationBar(
