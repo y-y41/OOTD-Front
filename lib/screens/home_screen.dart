@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
 import 'package:madcamp_w2/screens/today_screen.dart';
+import 'package:madcamp_w2/screens/week_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -10,7 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Widget> pages = [Text('sub1'), TodayScreen(), Text('sub2')];
+  List<Widget> pages = [WeekScreen(), TodayScreen(), Text('sub2')];
   var index = 1;
 
   @override
@@ -34,9 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Container(
         color: ColorChart.ootdIvory,
-        padding: EdgeInsets.symmetric(
-          horizontal: 20,
-        ),
+        padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
         child: pages[index],
       ),
       bottomNavigationBar: BottomNavigationBar(
