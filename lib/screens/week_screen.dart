@@ -1,8 +1,7 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/screens/today_screen.dart';
-import 'package:madcamp_w2/widget/temperature_graph.dart';
+import 'package:madcamp_w2/widgets/temperature_graph.dart';
 
 class WeekScreen extends StatelessWidget {
   const WeekScreen({Key? key}) : super(key: key);

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
+import 'package:madcamp_w2/providers/weather_provider.dart';
 import 'package:madcamp_w2/screens/home_screen.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  await dotenv.load(fileName: 'assets/.env');
+  runApp(MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => WeatherProvider())],
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

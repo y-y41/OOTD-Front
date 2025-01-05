@@ -2,8 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
-import 'package:madcamp_w2/widget/satisfaction_button.dart';
-import 'package:madcamp_w2/widget/temperature_graph.dart';
+import 'package:madcamp_w2/providers/weather_provider.dart';
+import 'package:madcamp_w2/widgets/satisfaction_button.dart';
+import 'package:madcamp_w2/widgets/temperature_graph.dart';
+import 'package:provider/provider.dart';
 
 class TodayScreen extends StatefulWidget {
   const TodayScreen({Key? key}) : super(key: key);
@@ -14,7 +16,26 @@ class TodayScreen extends StatefulWidget {
 
 class _TodayScreenState extends State<TodayScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('Fetching weather data ...');
+      Provider.of<WeatherProvider>(context, listen: false)
+          .fetchTodayWeather('Daejeon');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<WeatherProvider>(context);
+
+    if (provider.todayWeather == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    final weather = provider.todayWeather!;
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -30,7 +51,7 @@ class _TodayScreenState extends State<TodayScreen> {
                 width: 6,
               ),
               Text(
-                '대전광역시',
+                weather.cityName,
                 style: TextStyle(
                     color: ColorChart.ootdTextGrey,
                     fontSize: 16,
@@ -39,26 +60,55 @@ class _TodayScreenState extends State<TodayScreen> {
             ],
           ),
           Center(
-            child: Column(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  '체감온도',
-                  style: TextStyle(
-                      color: ColorChart.ootdTextGrey,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      height: 0.7),
+                Column(
+                  children: [
+                    Text(
+                      '체감온도',
+                      style: TextStyle(
+                          color: ColorChart.ootdTextGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 0.7),
+                    ),
+                    SizedBox(
+                      height: 0,
+                    ),
+                    Text(
+                      '${weather.feelsLike}°',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 31,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2),
+                    )
+                  ],
                 ),
                 SizedBox(
-                  height: 0,
+                  width: 10,
                 ),
-                Text(
-                  '2.6°',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 31,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2),
+                Column(
+                  children: [
+                    Text(
+                      '실제온도',
+                      style: TextStyle(
+                          color: ColorChart.ootdTextGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400),
+                    ),
+                    SizedBox(
+                      height: 0,
+                    ),
+                    Text(
+                      '${weather.temperature}°',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500),
+                    )
+                  ],
                 )
               ],
             ),
@@ -83,7 +133,7 @@ class _TodayScreenState extends State<TodayScreen> {
                     height: 0,
                   ),
                   Text(
-                    '0.0mm',
+                    '${weather.rainVolume} mm',
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -105,7 +155,7 @@ class _TodayScreenState extends State<TodayScreen> {
                     height: 0,
                   ),
                   Text(
-                    '60 %',
+                    '${weather.humidity} %',
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -127,7 +177,7 @@ class _TodayScreenState extends State<TodayScreen> {
                     height: 0,
                   ),
                   Text(
-                    '1.5 m/s',
+                    '${weather.windSpeed} m/s',
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -156,7 +206,7 @@ class _TodayScreenState extends State<TodayScreen> {
                 height: 60,
                 // color: ColorChart.ootdTextGrey,
                 child: TemperatureGraph(
-                  values: [-4, 3, 2, -1],
+                  values: weather.hourlyTemperature.values.toList(),
                 ),
               )
             ],
@@ -324,9 +374,6 @@ class _TodayScreenState extends State<TodayScreen> {
             height: 10,
           ),
           Container(
-            // width: MediaQuery.of(context).size.width,
-            // height: 50,
-            // color: ColorChart.ootdTextGrey,
             child: SatisfactionButton(),
           )
         ],
