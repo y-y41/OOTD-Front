@@ -3,8 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
 import 'package:madcamp_w2/providers/weather_provider.dart';
+import 'package:madcamp_w2/widgets/recommad_OOTD.dart';
 import 'package:madcamp_w2/widgets/satisfaction_button.dart';
 import 'package:madcamp_w2/widgets/temperature_graph.dart';
+import 'package:madcamp_w2/widgets/today_OOTD.dart';
 import 'package:provider/provider.dart';
 
 class TodayScreen extends StatefulWidget {
@@ -214,57 +216,7 @@ class _TodayScreenState extends State<TodayScreen> {
           SizedBox(
             height: 14,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '추천 OOTD',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: ColorChart.ootdGreen,
-                          borderRadius: BorderRadius.circular(50)),
-                    ),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: ColorChart.ootdGreen,
-                          borderRadius: BorderRadius.circular(50)),
-                    ),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: ColorChart.ootdGreen,
-                          borderRadius: BorderRadius.circular(50)),
-                    ),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: ColorChart.ootdGreen,
-                          borderRadius: BorderRadius.circular(50)),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
+          RecommadOotd(),
           SizedBox(
             height: 16,
           ),
@@ -278,49 +230,7 @@ class _TodayScreenState extends State<TodayScreen> {
             ),
             child: Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '오늘의 OOTD',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w900),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      width: 90,
-                      height: 160,
-                      decoration: BoxDecoration(
-                          color: ColorChart.ootdItemGrey,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '오늘의\nOOTD를\n추가하세요!',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Icon(
-                            CupertinoIcons.camera_fill,
-                            color: Colors.white,
-                            size: 30,
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                TodayOotd(),
                 SizedBox(
                   width: 30,
                 ),
