@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
+import 'package:madcamp_w2/screens/search_screen.dart';
 import 'package:madcamp_w2/screens/today_screen.dart';
 import 'package:madcamp_w2/screens/week_screen.dart';
 
@@ -11,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Widget> pages = [WeekScreen(), TodayScreen(), Text('sub2')];
+  List<Widget> pages = [WeekScreen(), TodayScreen(), SearchScreen()];
   var index = 1;
 
   @override
