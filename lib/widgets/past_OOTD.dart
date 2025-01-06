@@ -13,9 +13,10 @@ class _PastOotdState extends State<PastOotd> {
   bool _existed = true;
 
   List<String> imageUrls = [
-    'https://via.placeholder.com/90x160.png?text=Image+1',
-    'https://via.placeholder.com/90x160.png?text=Image+2',
-    'https://via.placeholder.com/90x160.png?text=Image+3',
+    'https://picsum.photos/id/237',
+    'https://picsum.photos/id/237',
+    'https://picsum.photos/id/237',
+    'https://picsum.photos/id/237',
   ];
 
   @override
@@ -35,7 +36,7 @@ class _PastOotdState extends State<PastOotd> {
           width: MediaQuery.of(context).size.width - 192,
           height: 160,
           decoration: BoxDecoration(
-              color: ColorChart.ootdItemGrey,
+              color: _existed ? Colors.transparent : ColorChart.ootdItemGrey,
               borderRadius: BorderRadius.circular(15)),
           child: _existed
               ? ClipRRect(

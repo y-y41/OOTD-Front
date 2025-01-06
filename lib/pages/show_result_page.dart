@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 
 class ShowResultPage extends StatelessWidget {
   final String cityName;
+  final DateTime? selectedDate;
 
-  const ShowResultPage({Key? key, required this.cityName}) : super(key: key);
+  const ShowResultPage(
+      {Key? key, required this.cityName, required this.selectedDate})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Text('$cityName, $selectedDate');
   }
 }
