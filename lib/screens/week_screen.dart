@@ -1,87 +1,137 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:madcamp_w2/data/weather_data.dart';
 import 'package:madcamp_w2/screens/today_screen.dart';
+import 'package:madcamp_w2/services/weather_service.dart';
 import 'package:madcamp_w2/widgets/temperature_graph.dart';
+import 'package:http/http.dart' as http;
 
-class WeekScreen extends StatelessWidget {
+class WeekScreen extends StatefulWidget {
   const WeekScreen({Key? key}) : super(key: key);
 
   @override
+  State<WeekScreen> createState() => _WeekScreenState();
+}
+
+class _WeekScreenState extends State<WeekScreen> {
+  List<Map<String, dynamic>> weekData = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchWeekData();
+  }
+
+  Future<void> fetchWeekData() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      WeatherData forecastWeather =
+          await WeatherService.getForecastWeather("Daejeon");
+      final forecastUrl =
+          "${WeatherService.foreUrl}?q=Daejeon&appid=${WeatherService.apiKey}&units=metric";
+      final forecastResponse = await http.get(Uri.parse(forecastUrl));
+
+      if (forecastResponse.statusCode == 200) {
+        final foreData = json.decode(forecastResponse.body);
+        final List<dynamic> forecastList = foreData['list'];
+
+        final weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+
+        Map<String, Map<String, dynamic>> dailyTemps = {};
+        for (var item in forecastList) {
+          final dateTime = DateTime.parse(item['dt_txt']);
+          final today = DateTime.now();
+          final tommorow = today.add(Duration(days: 1));
+
+          String dayLabel;
+          if (dateTime.day == today.day &&
+              dateTime.month == today.month &&
+              dateTime.year == today.year) {
+            dayLabel = '오늘';
+          } else if (dateTime.day == tommorow.day &&
+              dateTime.month == tommorow.month &&
+              dateTime.year == tommorow.year) {
+            dayLabel = '내일';
+          } else {
+            dayLabel = weekdays[dateTime.weekday - 1];
+          }
+
+          String condition = item['weather'][0]['description'];
+          String iconID = item['weather'][0]['icon'];
+          double temperature = item['main']['temp'].toDouble();
+
+          if (!dailyTemps.containsKey(dayLabel)) {
+            dailyTemps[dayLabel] = {
+              "condition": condition,
+              'iconID': iconID,
+              'temperatures': <double>[],
+            };
+          }
+          dailyTemps[dayLabel]!["temperatures"]!.add(temperature);
+        }
+        setState(() {
+          weekData = dailyTemps.entries
+              .take(5)
+              .map((entry) => {
+                    "day": entry.key,
+                    "condition": entry.value['condition'],
+                    'iconID': entry.value['iconID'],
+                    "temperatures": entry.value['temperatures']
+                  })
+              .toList();
+
+          // setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error fetching weekly data: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        weekCard(
-          context,
-          day: '오늘',
-          condition: 'clear sky',
-          temperatures: [-3, 4, 3, -1],
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TodayScreen()));
-          },
-        ),
-        SizedBox(
-          height: 9,
-        ),
-        weekCard(
-          context,
-          day: '내일',
-          condition: 'clear sky',
-          temperatures: [-3, 4, 3, -1],
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TodayScreen()));
-          },
-        ),
-        SizedBox(
-          height: 9,
-        ),
-        weekCard(
-          context,
-          day: '요일',
-          condition: 'clear sky',
-          temperatures: [-3, 4, 3, -1],
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TodayScreen()));
-          },
-        ),
-        SizedBox(
-          height: 9,
-        ),
-        weekCard(
-          context,
-          day: '요일',
-          condition: 'clear sky',
-          temperatures: [-3, 4, 3, -1],
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TodayScreen()));
-          },
-        ),
-        SizedBox(
-          height: 9,
-        ),
-        weekCard(
-          context,
-          day: '요일',
-          condition: 'clear sky',
-          temperatures: [-3, 4, 3, -1],
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TodayScreen()));
-          },
-        ),
-        SizedBox(
-          height: 10,
-        ),
-      ],
-    );
+    return isLoading
+        ? Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemCount: weekData.length,
+            itemBuilder: (context, index) {
+              final dayData = weekData[index];
+              return Column(
+                children: [
+                  weekCard(
+                    context,
+                    day: dayData['day'],
+                    condition: dayData['condition'],
+                    iconID: dayData['iconID'],
+                    temperatures: dayData['temperatures'],
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TodayScreen()));
+                    },
+                  ),
+                  SizedBox(
+                    height: 9,
+                  ),
+                ],
+              );
+            });
   }
 
   Widget weekCard(BuildContext context,
       {required String day,
       required String condition,
+      required String iconID,
       required List<double> temperatures,
       required VoidCallback onTap}) {
     return GestureDetector(
@@ -101,17 +151,27 @@ class WeekScreen extends StatelessWidget {
               child: Text(
                 day,
                 style: TextStyle(
-                    color: Colors.black,
+                    color: (day == '토')
+                        ? Colors.blue
+                        : (day == '일')
+                            ? Colors.red
+                            : Colors.black,
                     fontSize: 20,
                     fontWeight: FontWeight.w900),
+                textAlign: TextAlign.center,
               ),
             ),
             Container(
-              height: 56,
-              width: 42,
+              // height: 56,
+              width: 44,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Image.network(
+                    "http://openweathermap.org/img/wn/$iconID.png",
+                    width: 40,
+                    height: 40,
+                  ),
                   Text(
                     condition,
                     style: TextStyle(
