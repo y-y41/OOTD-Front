@@ -39,6 +39,9 @@ dependencies:
   http: ^1.2.2
   flutter_dotenv: ^5.2.1
   provider: ^6.1.2
+  camera: ^0.10.5+8
+  path_provider: ^2.1.5
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

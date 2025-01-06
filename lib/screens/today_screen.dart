@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
 import 'package:madcamp_w2/providers/weather_provider.dart';
+import 'package:madcamp_w2/screens/camera_screen.dart';
 import 'package:madcamp_w2/widgets/recommad_OOTD.dart';
 import 'package:madcamp_w2/widgets/satisfaction_button.dart';
 import 'package:madcamp_w2/widgets/temperature_graph.dart';
