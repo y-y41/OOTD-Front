@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -61,34 +62,54 @@ class _CameraScreenState extends State<CameraScreen> {
             }));
   }
 
-  Future<void> _uploadPicture() async {
+  Future<void> _uploadPicture() async{
     if (capturedImage == null) return;
 
     try {
-      final request =
-          http.MultipartRequest('POST', Uri.parse('backend upload api'));
-      request.files.add(await http.MultipartFile.fromPath(
-        'api에서 사용하는 파일 키? 이름',
-        capturedImage!.path,
-      ));
+      // 1. 백엔드에서 presigned url 요청
+      final fileName = capturedImage!.path.split('/').last;
+      final preUrlResponse = await http.post(Uri.parse('https://ootd-app-829475977871.asia-northeast3.run.app/generate-presigned-url'),
+      headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'fileName': fileName, 'fileType': 'image/jpeg'})
+      );
 
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        final responseBody = await response.stream.bytesToString();
-        print('Uploaded successfully: $responseBody');
-        // TODO: url반환받아서 처리 -> 화면에 표시? DB저장?
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Upload successful!')));
-      } else {
-        print('Upload failed: ${response.statusCode}');
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Upload failed: ${response.statusCode}')));
+      if (preUrlResponse.statusCode != 200) {
+        throw Exception('Failed to get Presigned URL');
       }
-    } catch (e) {
-      print('Error uploading picture: $e');
+
+      final preUrlData = jsonDecode(preUrlResponse.body);
+      final preUrl = preUrlData['presignedUrl'];
+
     }
   }
+  // Future<void> _uploadPicture() async {
+  //   if (capturedImage == null) return;
+  //
+  //   try {
+  //     final request =
+  //         http.MultipartRequest('POST', Uri.parse('backend upload api'));
+  //     request.files.add(await http.MultipartFile.fromPath(
+  //       'api에서 사용하는 파일 키? 이름',
+  //       capturedImage!.path,
+  //     ));
+  //
+  //     final response = await request.send();
+  //
+  //     if (response.statusCode == 200) {
+  //       final responseBody = await response.stream.bytesToString();
+  //       print('Uploaded successfully: $responseBody');
+  //       // TODO: url반환받아서 처리 -> 화면에 표시? DB저장?
+  //       ScaffoldMessenger.of(context)
+  //           .showSnackBar(SnackBar(content: Text('Upload successful!')));
+  //     } else {
+  //       print('Upload failed: ${response.statusCode}');
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Upload failed: ${response.statusCode}')));
+  //     }
+  //   } catch (e) {
+  //     print('Error uploading picture: $e');
+  //   }
+  // }
 
   @override
   void dispose() {
