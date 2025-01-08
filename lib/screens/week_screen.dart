@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:madcamp_w2/data/weather_data.dart';
 import 'package:madcamp_w2/data/weather_icon.dart';
 import 'package:madcamp_w2/pages/show_result_page.dart';
+import 'package:madcamp_w2/providers/weather_provider.dart';
 import 'package:madcamp_w2/screens/today_screen.dart';
 import 'package:madcamp_w2/services/weather_service.dart';
 import 'package:madcamp_w2/widgets/temperature_graph.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class WeekScreen extends StatefulWidget {
   const WeekScreen({Key? key}) : super(key: key);
@@ -64,17 +66,22 @@ class _WeekScreenState extends State<WeekScreen> {
           }
 
           String condition = item['weather'][0]['description'];
-          // String iconID = item['weather'][0]['icon'];
           double temperature = item['main']['temp'].toDouble();
+          int hour = dateTime.hour;
 
           if (!dailyTemps.containsKey(dayLabel)) {
             dailyTemps[dayLabel] = {
               "condition": condition,
-              // 'iconID': iconID,
               'temperatures': <double>[],
             };
           }
           dailyTemps[dayLabel]!["temperatures"]!.add(temperature);
+          if (dayLabel == '오늘') {
+            context
+                .read<WeatherProvider>()
+                .updateTodayTemperatures(dailyTemps[dayLabel]!["temperatures"]);
+          }
+          // print(dailyTemps[dayLabel]!["temperatures"]);
         }
         setState(() {
           weekData = dailyTemps.entries
@@ -82,12 +89,10 @@ class _WeekScreenState extends State<WeekScreen> {
               .map((entry) => {
                     "day": entry.key,
                     "condition": entry.value['condition'],
-                    // 'iconID': entry.value['iconID'],
                     "temperatures": entry.value['temperatures']
                   })
               .toList();
 
-          // setState(() {
           isLoading = false;
         });
       }
@@ -129,8 +134,10 @@ class _WeekScreenState extends State<WeekScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ShowResultPage(
-                                  cityName: 'Daejeon',
-                                  selectedDate: selectedDate)));
+                                    cityName: 'Daejeon',
+                                    selectedDate: selectedDate,
+                                    temps: dayData['temperatures'],
+                                  )));
                     },
                   ),
                   SizedBox(

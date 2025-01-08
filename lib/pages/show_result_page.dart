@@ -12,9 +12,13 @@ import 'package:madcamp_w2/data/weather_icon.dart';
 class ShowResultPage extends StatefulWidget {
   final String cityName;
   final DateTime? selectedDate;
+  final List<double>? temps;
 
   const ShowResultPage(
-      {Key? key, required this.cityName, required this.selectedDate})
+      {Key? key,
+      required this.cityName,
+      required this.selectedDate,
+      required this.temps})
       : super(key: key);
 
   @override
@@ -28,6 +32,7 @@ class _ShowResultPageState extends State<ShowResultPage> {
   String? error;
   String? condition;
   Map<int, double> hourlyTemps = {6: 0.0, 12: 0.0, 18: 0.0, 0: 0.0};
+  late List<double> temperatures;
 
   @override
   void initState() {
@@ -50,16 +55,19 @@ class _ShowResultPageState extends State<ShowResultPage> {
           if (forecast['dt_txt'] != null) {
             final dateTime = DateTime.parse(forecast['dt_txt'].toString());
             final hour = dateTime.hour;
-            if (hourlyTemps.containsKey(hour)) {
-              final temp = forecast['main']?['temp'];
-              if (temp != null) {
-                hourlyTemps[hour] = (temp is int) ? temp.toDouble() : temp;
-                print(
-                    "Setting temperature for hour $hour: ${hourlyTemps[hour]}");
+            if ([6, 12, 18, 0].contains(hour)) {
+              if (hourlyTemps.containsKey(hour)) {
+                final temp = forecast['main']?['temp'];
+                if (temp != null) {
+                  hourlyTemps[hour] = (temp is int) ? temp.toDouble() : temp;
+                  print(
+                      "Setting temperature for hour $hour: ${hourlyTemps[hour]}");
+                }
               }
             }
           }
         }
+        temperatures = hourlyTemps.values.toList();
       } else {
         weatherData = await WeatherService.getTodayWeather(widget.cityName);
       }
@@ -283,21 +291,24 @@ class _ShowResultPageState extends State<ShowResultPage> {
                   width: 170,
                   height: 60,
                   // color: ColorChart.ootdTextGrey,
-                  child: TemperatureGraph(
-                    values: [
-                      hourlyTemps[6] ?? 0.0,
-                      hourlyTemps[12] ?? 0.0,
-                      hourlyTemps[18] ?? 0.0,
-                      hourlyTemps[0] ?? 0.0,
-                    ],
-                  ),
+                  child: TemperatureGraph(values: widget.temps ?? temperatures),
                 )
               ],
             ),
             SizedBox(
               height: 30,
             ),
-            RecommadOotd(),
+            RecommadOotd(
+              temperature: forecastData!['main']['temp'],
+              feelsLike: forecastData!['main']['feels_like'],
+              rainVolume: forecastData!['rain'] != null
+                  ? forecastData!['rain']['1h']
+                  : 0.0,
+              humidity: forecastData!['main']['humidity'],
+              windSpeed: forecastData!['wind']['speed'],
+              condition: forecastData!['weather'][0]['description'],
+              hourlyTemperature: hourlyTemps,
+            ),
             SizedBox(
               height: 30,
             ),
@@ -317,6 +328,8 @@ class _ShowResultPageState extends State<ShowResultPage> {
                   // ),
                   PastOotd(
                     isHome: false,
+                    date: widget.selectedDate,
+                    feelsLike: forecastData!['main']['feels_like'].toString(),
                   )
                 ],
               ),
@@ -361,7 +374,7 @@ class _ShowResultPageState extends State<ShowResultPage> {
       body: Container(
           color: Colors.white,
           child: isLoading
-              ? CircularProgressIndicator()
+              ? Center(child: CircularProgressIndicator())
               : error != null
                   ? Text('Error: $error')
                   : SingleChildScrollView(

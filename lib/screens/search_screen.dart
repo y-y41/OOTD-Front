@@ -186,6 +186,7 @@ class _SearchScreenState extends State<SearchScreen>
                     builder: (context) => ShowResultPage(
                       cityName: _searchController.text,
                       selectedDate: selectedDate,
+                      temps: null,
                     ),
                   ),
                 );

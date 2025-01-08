@@ -71,6 +71,7 @@ final Map<String, String> cityData = {
   'Nairobi': 'Kenya',
   'New Delhi': 'India',
   'New York City': 'United States',
+  'Okinawa': 'Japan',
   'Oslo': 'Norway',
   'Paris': 'France',
   'Prague': 'Czech Republic',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
+import 'package:madcamp_w2/pages/ootd_logs.dart';
 import 'package:madcamp_w2/providers/kakao_user_info.dart';
 import 'package:provider/provider.dart';
 
@@ -33,29 +34,38 @@ class HamburgerBar extends StatelessWidget {
                 Text(
                   nickname,
                   style: TextStyle(
-                      color: ColorChart.ootdGreen,
+                      color: Colors.black,
                       fontSize: 30,
-                      fontWeight: FontWeight.w900),
+                      fontWeight: FontWeight.w700),
                 ),
-                Text(
-                  "'s closet",
-                  style: TextStyle(
-                      color: ColorChart.ootdGreen,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500),
-                )
+                // Text(
+                //   "'s closet",
+                //   style: TextStyle(
+                //       color: ColorChart.ootdGreen,
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.w500),
+                // )
               ],
             ),
             accountEmail: null,
             decoration: BoxDecoration(color: ColorChart.ootdIvory),
           ),
           ListTile(
-            title: Text('마이페이지'),
+            title: Text(
+              '마이페이지',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             onTap: () {},
           ),
           ListTile(
-            title: Text('OOTD LOG'),
-            onTap: () {},
+            title: Text(
+              'OOTD LOG',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => OotdLogs()));
+            },
           )
         ],
       ),

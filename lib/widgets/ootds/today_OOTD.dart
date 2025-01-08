@@ -100,7 +100,7 @@ class _TodayOotdState extends State<TodayOotd> {
                   borderRadius: BorderRadius.circular(15),
                   image: photoUrl != null
                       ? DecorationImage(
-                          image: NetworkImage(photoUrl!), fit: BoxFit.contain)
+                          image: NetworkImage(photoUrl!), fit: BoxFit.cover)
                       : _photoUrl != null
                           ? DecorationImage(
                               image: NetworkImage(_photoUrl!),
