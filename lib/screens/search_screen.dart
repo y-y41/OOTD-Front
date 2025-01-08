@@ -12,7 +12,8 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<SearchScreen>
+    with TickerProviderStateMixin {
   String query = '';
   List<MapEntry<String, String>> filteredCities = [];
   final TextEditingController _searchController = TextEditingController();

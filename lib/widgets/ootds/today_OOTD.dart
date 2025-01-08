@@ -1,9 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
+import 'package:madcamp_w2/providers/kakao_user_info.dart';
+import 'package:madcamp_w2/providers/photo_provider.dart';
+import 'package:madcamp_w2/providers/weather_provider.dart';
 import 'package:madcamp_w2/screens/camera_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class TodayOotd extends StatefulWidget {
   const TodayOotd({Key? key}) : super(key: key);
@@ -14,10 +20,53 @@ class TodayOotd extends StatefulWidget {
 
 class _TodayOotdState extends State<TodayOotd> {
   File? _selectedImage;
+  String? _photoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForExistingPhoto();
+  }
+
+  Future<void> _checkForExistingPhoto() async {
+    final kakaoUserInfo = Provider.of<KakaoUserInfo>(context, listen: false);
+    final provider = Provider.of<WeatherProvider>(context, listen: false);
+    final weather = provider.todayWeather!;
+    final todayDate =
+        "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}";
+
+    final uri = Uri.parse(
+            'https://ootd-app-829475977871.asia-northeast3.run.app/api/v1/ootd/get-ootd-info')
+        .replace(queryParameters: {
+      'kakao_id': kakaoUserInfo.kakaoId.toString(),
+      'date': todayDate,
+      'location': weather.cityName
+    });
+
+    try {
+      final response =
+          await http.get(uri, headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['photo_url'] != null) {
+          setState(() {
+            _photoUrl = data['photo_url'];
+          });
+        }
+      } else {
+        print('HTTP 요청 실패: ${response.statusCode}');
+        print('응답 본문: ${response.body}');
+      }
+    } catch (e) {
+      print('에러 발생: $e');
+    }
+  }
 
   Future<void> navigateToCamera() async {
     final File? capturedImage = await Navigator.push(
         context, MaterialPageRoute(builder: (context) => CameraScreen()));
+    // _checkForExistingPhoto();
 
     if (capturedImage != null) {
       setState(() {
@@ -28,6 +77,8 @@ class _TodayOotdState extends State<TodayOotd> {
 
   @override
   Widget build(BuildContext context) {
+    final photoUrl = Provider.of<PhotoProvider>(context).photoUrl;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -47,11 +98,15 @@ class _TodayOotdState extends State<TodayOotd> {
               decoration: BoxDecoration(
                   color: ColorChart.ootdItemGrey,
                   borderRadius: BorderRadius.circular(15),
-                  image: _selectedImage != null
+                  image: photoUrl != null
                       ? DecorationImage(
-                          image: FileImage(_selectedImage!), fit: BoxFit.cover)
-                      : null),
-              child: _selectedImage == null
+                          image: NetworkImage(photoUrl!), fit: BoxFit.contain)
+                      : _photoUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(_photoUrl!),
+                              fit: BoxFit.cover)
+                          : null),
+              child: _photoUrl == null && photoUrl == null
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

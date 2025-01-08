@@ -36,18 +36,6 @@ class WeatherService {
     if (response.statusCode == 200 && forecastResponse.statusCode == 200) {
       final data = json.decode(response.body);
       final foreData = json.decode(forecastResponse.body);
-      // print("API Response: ${foreData.toString().substring(0, 200)}...");
-      // final hourlyTemp = WeatherData.parseHourlyTemperatures(foreData['list']);
-      // final List<dynamic> forecastList = foreData['list'];
-      //
-      // Map<int, double> hourlyTemp = {};
-      // for (var item in forecastList) {
-      //   final dateTime = DateTime.parse(item['dx_txt']);
-      //   final hour = dateTime.hour;
-      //   if ([0, 6, 12, 18].contains(hour)) {
-      //     hourlyTemp[hour] = item['main']['temp'].toDouble();
-      //   }
-      // }
       final Map<String, dynamic> combinedData = {
         ...data,
         'hourly_forecast': foreData['list'],
@@ -60,7 +48,7 @@ class WeatherService {
     }
   }
 
-  static Future<Map<String, dynamic>?> searchWeatherByData(
+  static Future<List<Map<String, dynamic>>> searchWeatherByData(
       String city, String date) async {
     final forecastUrl = "$foreUrl?q=$city&appid=$apiKey&units=metric";
     final forecastResponse = await http.get(Uri.parse(forecastUrl));
@@ -69,13 +57,15 @@ class WeatherService {
       final forecast = json.decode(forecastResponse.body);
       final List<dynamic> forecastList = forecast['list'];
 
-      final weatherOnDate = forecastList.firstWhere(
-        (item) => (item['dt_txt'] as String).startsWith(date),
-        orElse: () => null,
-      );
-      return weatherOnDate as Map<String, dynamic>?;
+      final weatherOnDate = forecastList
+          .where(
+            (item) => (item['dt_txt'] as String).startsWith(date),
+          )
+          .toList();
+      return weatherOnDate.cast<Map<String, dynamic>>();
     } else {
       throw Exception("Failed to search weather data");
+      // return [];
     }
   }
 }

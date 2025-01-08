@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/data/weather_data.dart';
+import 'package:madcamp_w2/data/weather_icon.dart';
+import 'package:madcamp_w2/pages/show_result_page.dart';
 import 'package:madcamp_w2/screens/today_screen.dart';
 import 'package:madcamp_w2/services/weather_service.dart';
 import 'package:madcamp_w2/widgets/temperature_graph.dart';
@@ -62,13 +64,13 @@ class _WeekScreenState extends State<WeekScreen> {
           }
 
           String condition = item['weather'][0]['description'];
-          String iconID = item['weather'][0]['icon'];
+          // String iconID = item['weather'][0]['icon'];
           double temperature = item['main']['temp'].toDouble();
 
           if (!dailyTemps.containsKey(dayLabel)) {
             dailyTemps[dayLabel] = {
               "condition": condition,
-              'iconID': iconID,
+              // 'iconID': iconID,
               'temperatures': <double>[],
             };
           }
@@ -80,7 +82,7 @@ class _WeekScreenState extends State<WeekScreen> {
               .map((entry) => {
                     "day": entry.key,
                     "condition": entry.value['condition'],
-                    'iconID': entry.value['iconID'],
+                    // 'iconID': entry.value['iconID'],
                     "temperatures": entry.value['temperatures']
                   })
               .toList();
@@ -105,19 +107,30 @@ class _WeekScreenState extends State<WeekScreen> {
             itemCount: weekData.length,
             itemBuilder: (context, index) {
               final dayData = weekData[index];
+
+              DateTime selectedDate;
+              if (dayData['day'] == '오늘') {
+                selectedDate = DateTime.now();
+              } else if (dayData['day'] == '내일') {
+                selectedDate = DateTime.now().add(Duration(days: 1));
+              } else {
+                selectedDate = _getDateForDay(dayData['day']);
+              }
               return Column(
                 children: [
                   weekCard(
                     context,
                     day: dayData['day'],
                     condition: dayData['condition'],
-                    iconID: dayData['iconID'],
+                    // iconID: dayData['iconID'],
                     temperatures: dayData['temperatures'],
                     onTap: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => TodayScreen()));
+                              builder: (context) => ShowResultPage(
+                                  cityName: 'Daejeon',
+                                  selectedDate: selectedDate)));
                     },
                   ),
                   SizedBox(
@@ -131,7 +144,7 @@ class _WeekScreenState extends State<WeekScreen> {
   Widget weekCard(BuildContext context,
       {required String day,
       required String condition,
-      required String iconID,
+      // required String iconID,
       required List<double> temperatures,
       required VoidCallback onTap}) {
     return GestureDetector(
@@ -167,8 +180,8 @@ class _WeekScreenState extends State<WeekScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.network(
-                    "http://openweathermap.org/img/wn/$iconID.png",
+                  Image.asset(
+                    WeatherIcon[condition] ?? 'assets/images/weather_rain.png',
                     width: 40,
                     height: 40,
                   ),
@@ -192,5 +205,20 @@ class _WeekScreenState extends State<WeekScreen> {
         ),
       ),
     );
+  }
+
+  DateTime _getDateForDay(String day) {
+    final weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+    final today = DateTime.now();
+    int targetWeekday = weekdays.indexOf(day) + 1;
+
+    int currentWeekday = today.weekday;
+
+    int difference = targetWeekday - currentWeekday;
+    if (difference < 0) {
+      difference += 7;
+    }
+
+    return today.add(Duration(days: difference));
   }
 }

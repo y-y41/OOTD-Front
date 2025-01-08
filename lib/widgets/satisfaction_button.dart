@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
 import 'package:madcamp_w2/config/satisfaction_emoji.dart';
+import 'package:http/http.dart' as http;
+import 'package:madcamp_w2/providers/weather_provider.dart';
+import 'package:provider/provider.dart';
 
 class SatisfactionButton extends StatefulWidget {
   const SatisfactionButton({Key? key}) : super(key: key);
@@ -21,6 +26,61 @@ class _SatisfactionButtonState extends State<SatisfactionButton> {
     Satisfaction.littleCold: '약간 추웠어요',
     Satisfaction.veryCold: '추웠어요'
   };
+
+  Future<void> updateSatisfaction(String emoji) async {
+    final weatherProvider =
+        Provider.of<WeatherProvider>(context, listen: false);
+    final todayWeather = weatherProvider.todayWeather;
+    final serverUrl = Uri.parse(
+        'https://ootd-app-829475977871.asia-northeast3.run.app/api/v1/ootd/update-satisfaction');
+
+    var score = 3;
+    switch (emoji) {
+      case Satisfaction.veryHot:
+        score = 1;
+        break;
+      case Satisfaction.littleHot:
+        score = 2;
+        break;
+      case Satisfaction.good:
+        score = 3;
+        break;
+      case Satisfaction.littleCold:
+        score = 4;
+        break;
+      case Satisfaction.veryCold:
+        score = 5;
+        break;
+    }
+
+    final requestBody = {
+      'kakao_id': 3867638125,
+      'date':
+          "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
+      'location': todayWeather!.cityName,
+      'satisfaction_score': score
+    };
+
+    print("Request Body: ${jsonEncode(requestBody)}");
+
+    try {
+      final response = await http.put(serverUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(requestBody));
+
+      print("Response Status: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        print('Satisfaction data successfully sent to the server');
+      } else {
+        print('Failed to send data to the server');
+        print('Error Response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error occurred while sending data to the server: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +143,7 @@ class _SatisfactionButtonState extends State<SatisfactionButton> {
                     selectedEmoji = entry.key;
                     selectedText = entry.value;
                     isExpanded = false;
+                    updateSatisfaction(entry.key);
                   });
                 },
                 child: Image.asset(

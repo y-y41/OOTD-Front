@@ -2,13 +2,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:madcamp_w2/config/color_chart.dart';
+import 'package:madcamp_w2/data/weather_icon.dart';
 import 'package:madcamp_w2/providers/weather_provider.dart';
 import 'package:madcamp_w2/screens/camera_screen.dart';
-import 'package:madcamp_w2/widgets/past_OOTD.dart';
-import 'package:madcamp_w2/widgets/recommad_OOTD.dart';
+import 'package:madcamp_w2/widgets/ootds/past_OOTD.dart';
+import 'package:madcamp_w2/widgets/ootds/recommad_OOTD.dart';
 import 'package:madcamp_w2/widgets/satisfaction_button.dart';
 import 'package:madcamp_w2/widgets/temperature_graph.dart';
-import 'package:madcamp_w2/widgets/today_OOTD.dart';
+import 'package:madcamp_w2/widgets/ootds/today_OOTD.dart';
 import 'package:provider/provider.dart';
 
 class TodayScreen extends StatefulWidget {
@@ -40,6 +41,7 @@ class _TodayScreenState extends State<TodayScreen> {
     }
 
     final weather = provider.todayWeather!;
+    final String condition = weather.condition;
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -67,6 +69,17 @@ class _TodayScreenState extends State<TodayScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Container(
+                  width: 60,
+                  child: Image.asset(
+                    WeatherIcon[condition] ?? 'assets/images/weather_rain.png',
+                    width: 60,
+                    height: 60,
+                  ),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
                 Column(
                   children: [
                     Text(
@@ -87,33 +100,15 @@ class _TodayScreenState extends State<TodayScreen> {
                           fontSize: 31,
                           fontWeight: FontWeight.w700,
                           height: 1.2),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Column(
-                  children: [
-                    Text(
-                      '실제온도',
-                      style: TextStyle(
-                          color: ColorChart.ootdTextGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400),
                     ),
                     SizedBox(
                       height: 0,
                     ),
-                    Text(
-                      '${weather.temperature}°',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500),
-                    )
                   ],
-                )
+                ),
+                // SizedBox(
+                //   width: 5,
+                // ),
               ],
             ),
           ),
@@ -123,6 +118,27 @@ class _TodayScreenState extends State<TodayScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              Column(
+                children: [
+                  Text(
+                    '실제온도',
+                    style: TextStyle(
+                        color: ColorChart.ootdTextGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400),
+                  ),
+                  SizedBox(
+                    height: 0,
+                  ),
+                  Text(
+                    '${weather.temperature}°',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500),
+                  )
+                ],
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -236,7 +252,9 @@ class _TodayScreenState extends State<TodayScreen> {
                 SizedBox(
                   width: 30,
                 ),
-                PastOotd()
+                PastOotd(
+                  isHome: true,
+                )
               ],
             ),
           ),

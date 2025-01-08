@@ -40,12 +40,13 @@ class WeatherProvider with ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> searchWeather(String city, String date) async {
+  Future<List<Map<String, dynamic>>> searchWeather(
+      String city, String date) async {
     try {
       return await WeatherService.searchWeatherByData(city, date);
     } catch (e) {
       print("Error searching weather data: $e");
-      return null;
+      return [];
     }
   }
 }

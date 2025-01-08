@@ -5,6 +5,7 @@ import 'package:madcamp_w2/screens/search_screen.dart';
 import 'package:madcamp_w2/screens/swipeable_screen.dart';
 import 'package:madcamp_w2/screens/today_screen.dart';
 import 'package:madcamp_w2/screens/week_screen.dart';
+import 'package:madcamp_w2/widgets/hamburger_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -43,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+        endDrawer: HamburgerBar(),
         body: Container(
           color: ColorChart.ootdIvory,
           padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
@@ -58,25 +60,36 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             unselectedItemColor: ColorChart.ootdTextGrey,
             selectedItemColor: ColorChart.ootdGreen,
+            showUnselectedLabels: false,
+            showSelectedLabels: false,
             items: [
               BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.calendar_month_rounded,
-                    size: 30,
+                  icon: Image.asset(
+                    index == 0
+                        ? 'assets/images/week=on.png'
+                        : 'assets/images/week=off.png',
+                    width: 22.5,
+                    height: 43,
                   ),
-                  label: '주간'),
+                  label: ''),
               BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.add,
-                    size: 30,
+                  icon: Image.asset(
+                    index == 1
+                        ? 'assets/images/cloth=on.png'
+                        : 'assets/images/cloth=off.png',
+                    width: 60,
+                    height: 60,
                   ),
-                  label: '오늘'),
+                  label: ''),
               BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.search_rounded,
-                    size: 30,
+                  icon: Image.asset(
+                    index == 2
+                        ? 'assets/images/search=on.png'
+                        : 'assets/images/search=off.png',
+                    width: 27,
+                    height: 41,
                   ),
-                  label: '검색'),
+                  label: ''),
             ]),
       ),
     );

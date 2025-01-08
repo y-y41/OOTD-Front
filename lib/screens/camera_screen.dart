@@ -5,7 +5,11 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:madcamp_w2/config/color_chart.dart';
+import 'package:madcamp_w2/providers/kakao_user_info.dart';
+import 'package:madcamp_w2/providers/photo_provider.dart';
+import 'package:madcamp_w2/providers/weather_provider.dart';
 import 'package:madcamp_w2/widgets/picture_dialog.dart';
+import 'package:provider/provider.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({Key? key}) : super(key: key);
@@ -56,60 +60,88 @@ class _CameraScreenState extends State<CameraScreen> {
             onRetake: () {
               Navigator.pop(context);
             },
-            onConfirm: () {
-              _uploadPicture();
+            onConfirm: () async {
+              await _uploadPicture();
               Navigator.pop(context, imageFile);
             }));
   }
 
-  Future<void> _uploadPicture() async{
+  Future<void> _uploadPicture() async {
     if (capturedImage == null) return;
+
+    final weatherProvider =
+        Provider.of<WeatherProvider>(context, listen: false);
+    final todayWeather = weatherProvider.todayWeather;
+    final kakaoUserInfo = Provider.of<KakaoUserInfo>(context, listen: false);
+    final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
 
     try {
       // 1. 백엔드에서 presigned url 요청
       final fileName = capturedImage!.path.split('/').last;
-      final preUrlResponse = await http.post(Uri.parse('https://ootd-app-829475977871.asia-northeast3.run.app/generate-presigned-url'),
-      headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'fileName': fileName, 'fileType': 'image/jpeg'})
-      );
+      final preUrlResponse = await http.post(
+          Uri.parse(
+              'https://ootd-app-829475977871.asia-northeast3.run.app/api/v1/ootd/generate-presigned-url'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'file_name': fileName, 'file_type': 'image/jpeg'}));
 
       if (preUrlResponse.statusCode != 200) {
         throw Exception('Failed to get Presigned URL');
       }
 
       final preUrlData = jsonDecode(preUrlResponse.body);
-      final preUrl = preUrlData['presignedUrl'];
+      final preUrl = preUrlData['presigned_url'];
+      final fileUrl = preUrlData['file_url'];
 
+      // 2. presigned url 이용해 S3에 이미지 업로드
+      final uploadResponse = await http.put(
+        Uri.parse(preUrl),
+        headers: {'Content-Type': 'image/jpeg'},
+        body: capturedImage!.readAsBytesSync(),
+      );
+
+      if (uploadResponse.statusCode != 200) {
+        throw Exception('Failed to upload image to S3');
+      }
+
+      // 3. 백엔드한테 url 전달
+      print("kakao ID::::::::::::::::::${kakaoUserInfo.kakaoId}");
+      final requestBody = {
+        'kakao_id': kakaoUserInfo.kakaoId,
+        'date':
+            "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
+        'location': todayWeather!.cityName,
+        'actual_temp': todayWeather.temperature,
+        'apparent_temp': todayWeather.feelsLike,
+        'precipitation': todayWeather.rainVolume,
+        'humidity': todayWeather.humidity,
+        'wind_speed': todayWeather.windSpeed,
+        'condition': todayWeather.condition,
+        'temp_6am': 0.0,
+        'temp_12pm': 0.0,
+        'temp_6pm': 0.0,
+        'temp_12am': 0.0,
+        'photo_url': fileUrl
+      };
+      print('Request Body: ${jsonEncode(requestBody)}');
+
+      // 3. 백엔드한테 url 전달
+      final backendResponse = await http.post(
+          Uri.parse(
+              'https://ootd-app-829475977871.asia-northeast3.run.app/api/v1/ootd/save-ootd'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(requestBody));
+
+      photoProvider.setPhotoUrl(fileUrl);
+
+      if (backendResponse.statusCode != 200) {
+        print('Backend Response Status: ${backendResponse.statusCode}');
+        print('Backend Response Body: ${backendResponse.body}');
+        throw Exception('Failed to save URL to backend');
+      }
+    } catch (e) {
+      print('Error uploading picture: $e');
     }
   }
-  // Future<void> _uploadPicture() async {
-  //   if (capturedImage == null) return;
-  //
-  //   try {
-  //     final request =
-  //         http.MultipartRequest('POST', Uri.parse('backend upload api'));
-  //     request.files.add(await http.MultipartFile.fromPath(
-  //       'api에서 사용하는 파일 키? 이름',
-  //       capturedImage!.path,
-  //     ));
-  //
-  //     final response = await request.send();
-  //
-  //     if (response.statusCode == 200) {
-  //       final responseBody = await response.stream.bytesToString();
-  //       print('Uploaded successfully: $responseBody');
-  //       // TODO: url반환받아서 처리 -> 화면에 표시? DB저장?
-  //       ScaffoldMessenger.of(context)
-  //           .showSnackBar(SnackBar(content: Text('Upload successful!')));
-  //     } else {
-  //       print('Upload failed: ${response.statusCode}');
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(content: Text('Upload failed: ${response.statusCode}')));
-  //     }
-  //   } catch (e) {
-  //     print('Error uploading picture: $e');
-  //   }
-  // }
 
   @override
   void dispose() {
