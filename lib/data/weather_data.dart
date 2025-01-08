@@ -77,7 +77,7 @@ class WeatherData {
         if (entry['dt_txt'] != null) {
           final dateTime = DateTime.parse(entry['dt_txt'].toString());
           final hour = dateTime.hour;
-          if ([0, 6, 12, 18].contains(hour)) {
+          if ([6, 12, 18, 0].contains(hour)) {
             final temp = entry['main']?['temp'];
             if (temp != null) {
               hourlyTemps[hour] = (temp is int) ? temp.toDouble() : temp;

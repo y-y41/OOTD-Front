@@ -40,6 +40,8 @@ class _TodayScreenState extends State<TodayScreen> {
       );
     }
 
+    final todayTemperatures =
+        context.watch<WeatherProvider>().todayTemperatures;
     final weather = provider.todayWeather!;
     final String condition = weather.condition;
     return SingleChildScrollView(
@@ -57,7 +59,7 @@ class _TodayScreenState extends State<TodayScreen> {
                 width: 6,
               ),
               Text(
-                weather.cityName,
+                'Daejeon',
                 style: TextStyle(
                     color: ColorChart.ootdTextGrey,
                     fontSize: 16,
@@ -226,7 +228,8 @@ class _TodayScreenState extends State<TodayScreen> {
                 height: 60,
                 // color: ColorChart.ootdTextGrey,
                 child: TemperatureGraph(
-                  values: weather.hourlyTemperature.values.toList(),
+                  values: todayTemperatures ??
+                      weather.hourlyTemperature.values.toList(),
                 ),
               )
             ],
@@ -234,7 +237,15 @@ class _TodayScreenState extends State<TodayScreen> {
           SizedBox(
             height: 14,
           ),
-          RecommadOotd(),
+          RecommadOotd(
+            temperature: weather.temperature,
+            feelsLike: weather.feelsLike,
+            rainVolume: weather.rainVolume,
+            humidity: weather.humidity,
+            windSpeed: weather.windSpeed,
+            condition: weather.condition,
+            hourlyTemperature: weather.hourlyTemperature,
+          ),
           SizedBox(
             height: 16,
           ),
@@ -254,6 +265,8 @@ class _TodayScreenState extends State<TodayScreen> {
                 ),
                 PastOotd(
                   isHome: true,
+                  date: DateTime.now(),
+                  feelsLike: weather.feelsLike.toString(),
                 )
               ],
             ),

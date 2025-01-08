@@ -9,6 +9,14 @@ class WeatherProvider with ChangeNotifier {
   WeatherData? todayWeather;
   WeatherData? forecastWeather;
   bool isLoading = false;
+  List<double>? _todayTemperatures;
+
+  List<double>? get todayTemperatures => _todayTemperatures;
+
+  void updateTodayTemperatures(List<double> values) {
+    _todayTemperatures = values;
+    notifyListeners();
+  }
 
   Future<void> fetchTodayWeather(String city) async {
     isLoading = true;

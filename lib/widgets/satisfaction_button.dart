@@ -6,6 +6,7 @@ import 'package:madcamp_w2/config/satisfaction_emoji.dart';
 import 'package:http/http.dart' as http;
 import 'package:madcamp_w2/providers/weather_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SatisfactionButton extends StatefulWidget {
   const SatisfactionButton({Key? key}) : super(key: key);
@@ -26,6 +27,24 @@ class _SatisfactionButtonState extends State<SatisfactionButton> {
     Satisfaction.littleCold: '약간 추웠어요',
     Satisfaction.veryCold: '추웠어요'
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedEmoji();
+  }
+
+  Future<void> _loadSelectedEmoji() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedEmoji = prefs.getString('selectedEmoji') ?? Satisfaction.good;
+      selectedText = emojiText[selectedEmoji] ?? '오늘의 OOTD만족도를 평가해주새요';
+    });
+  }
+
+  Future<void> _saveSelectedEmoji(String emoji) async {
+    // final prefs = await S
+  }
 
   Future<void> updateSatisfaction(String emoji) async {
     final weatherProvider =

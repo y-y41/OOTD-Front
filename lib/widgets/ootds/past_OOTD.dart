@@ -11,7 +11,15 @@ import 'package:http/http.dart' as http;
 
 class PastOotd extends StatefulWidget {
   final bool isHome;
-  const PastOotd({Key? key, required this.isHome}) : super(key: key);
+  final DateTime? date;
+  final String feelsLike;
+
+  const PastOotd(
+      {Key? key,
+      required this.isHome,
+      required this.date,
+      required this.feelsLike})
+      : super(key: key);
 
   @override
   State<PastOotd> createState() => _PastOotdState();
@@ -39,17 +47,17 @@ class _PastOotdState extends State<PastOotd> {
 
   Future<void> _fetchPastOotdImages() async {
     final kakaoUserInfo = Provider.of<KakaoUserInfo>(context, listen: false);
-    final provider = Provider.of<WeatherProvider>(context, listen: false);
-    final weather = provider.todayWeather!;
-    final todayDate =
-        "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}";
+    // final provider = Provider.of<WeatherProvider>(context, listen: false);
+    // final weather = provider.todayWeather!;
+    final searchDate =
+        "${widget.date?.year}-${widget.date?.month.toString().padLeft(2, '0')}-${widget.date?.day.toString().padLeft(2, '0')}";
 
     final url = Uri.parse(
             'https://ootd-app-829475977871.asia-northeast3.run.app/api/v1/ootd/get-similar-ootd')
         .replace(queryParameters: {
       'kakao_id': kakaoUserInfo.kakaoId.toString(),
-      'date': todayDate,
-      'apparent_temp': weather.feelsLike.toString()
+      'date': searchDate,
+      'apparent_temp': widget.feelsLike
     });
 
     try {
